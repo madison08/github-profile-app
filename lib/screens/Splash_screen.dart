@@ -58,6 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
               "assets/images/loader-cat-2.gif",
               width: 150.0,
               height: 150.0,
+              fit: BoxFit.cover,
             ),
             Container(),
             Text.rich(

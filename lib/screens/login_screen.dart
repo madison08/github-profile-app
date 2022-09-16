@@ -3,7 +3,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:github_profile/providers/DataProvider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,10 +15,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  FocusNode _focusEmail = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+
+  FocusNode _focusUsername = FocusNode();
   FocusNode _focusPassword = FocusNode();
 
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -24,12 +28,12 @@ class _LoginScreenState extends State<LoginScreen> {
     // TODO: implement initState
     super.initState();
 
-    _focusEmail.addListener(_onFocusChange);
+    _focusUsername.addListener(_onFocusChange);
     _focusPassword.addListener(_onFocusPassChange);
   }
 
   void _onFocusChange() {
-    log("Focus: ${_focusEmail.hasFocus.toString()}");
+    log("Focus: ${_focusUsername.hasFocus.toString()}");
     setState(() {});
   }
 
@@ -42,8 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _focusEmail.removeListener(_onFocusChange);
-    _focusEmail.dispose();
+    _focusUsername.removeListener(_onFocusChange);
+    _focusUsername.dispose();
+    _usernameController.dispose();
 
     _focusPassword.removeListener(_onFocusPassChange);
     _focusPassword.dispose();
@@ -51,6 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var Data_Provider = Provider.of<DataProvider>(context, listen: false);
+
     var _deviceWidth = MediaQuery.of(context).size.width;
 
     return Container(
@@ -80,50 +87,65 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 SizedBox(
                   width: _deviceWidth * 0.8,
-                  child: TextField(
-                    focusNode: _focusEmail,
-                    controller: _emailController,
-                    cursorColor: Colors.white,
-                    style: GoogleFonts.shareTechMono(
-                      textStyle: TextStyle(
-                        color: Colors.white,
+                  child: Form(
+                    key: _formKey,
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Veuillez entrer votre nom d'utilisateur";
+                        }
+                        return null;
+                      },
+                      focusNode: _focusUsername,
+                      controller: _usernameController,
+                      cursorColor: Colors.white,
+                      style: GoogleFonts.shareTechMono(
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      suffix: Icon(
-                        Icons.cancel_outlined,
-                        color: Colors.white,
-                      ),
-                      label: _focusEmail.hasFocus
-                          ? Container(
-                              padding: EdgeInsets.all(5.0),
-                              color: Colors.white,
-                              child: Text(
-                                "Email",
-                                style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        filled: true,
+                        suffix: GestureDetector(
+                          onTap: () {
+                            print("helloooo");
+                            _usernameController.clear();
+                          },
+                          child: Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                        label: _focusUsername.hasFocus
+                            ? Container(
+                                padding: EdgeInsets.all(5.0),
+                                color: Colors.white,
+                                child: Text(
+                                  "Username",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              )
+                            : Text(
+                                "Username",
+                                style: TextStyle(color: Colors.white),
                               ),
-                            )
-                          : Text(
-                              "Email",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          borderSide: BorderSide(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          borderSide: BorderSide(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          borderSide: BorderSide(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -132,61 +154,61 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 30.0,
                 ),
-                SizedBox(
-                  width: _deviceWidth * 0.8,
-                  child: TextField(
-                    focusNode: _focusPassword,
-                    controller: _passwordController,
-                    cursorColor: Colors.white,
-                    obscureText: true,
-                    style: GoogleFonts.shareTechMono(
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      suffix: Icon(
-                        Icons.cancel_outlined,
-                        color: Colors.white,
-                      ),
-                      label: _focusPassword.hasFocus
-                          ? Container(
-                              padding: EdgeInsets.all(5.0),
-                              color: Colors.white,
-                              child: Text(
-                                "Mot de passe",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            )
-                          : Text(
-                              "Mot de passe",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 30.0,
-                ),
+                // SizedBox(
+                //   width: _deviceWidth * 0.8,
+                //   child: TextField(
+                //     focusNode: _focusPassword,
+                //     controller: _passwordController,
+                //     cursorColor: Colors.white,
+                //     obscureText: true,
+                //     style: GoogleFonts.shareTechMono(
+                //       textStyle: TextStyle(
+                //         color: Colors.white,
+                //       ),
+                //     ),
+                //     decoration: InputDecoration(
+                //       filled: true,
+                //       suffix: Icon(
+                //         Icons.cancel_outlined,
+                //         color: Colors.white,
+                //       ),
+                //       label: _focusPassword.hasFocus
+                //           ? Container(
+                //               padding: EdgeInsets.all(5.0),
+                //               color: Colors.white,
+                //               child: Text(
+                //                 "Mot de passe",
+                //                 style: TextStyle(color: Colors.black),
+                //               ),
+                //             )
+                //           : Text(
+                //               "Mot de passe",
+                //               style: TextStyle(color: Colors.white),
+                //             ),
+                //       border: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(5.0),
+                //         borderSide: BorderSide(
+                //           color: Colors.white,
+                //         ),
+                //       ),
+                //       enabledBorder: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(5.0),
+                //         borderSide: BorderSide(
+                //           color: Colors.white,
+                //         ),
+                //       ),
+                //       focusedBorder: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(5.0),
+                //         borderSide: BorderSide(
+                //           color: Colors.white,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // SizedBox(
+                //   height: 30.0,
+                // ),
                 SizedBox(
                   width: _deviceWidth * 0.8,
                   child: ElevatedButton(
@@ -196,17 +218,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: StadiumBorder(),
                       elevation: 0.0,
                     ),
-                    onPressed: () {},
-                    child: Text(
-                      "Se connecter",
-                      style: GoogleFonts.shareTechMono(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Data_Provider.getUserLog(_usernameController.text);
+                      }
+                    },
+                    child: Data_Provider.loadingLogin == true
+                        ? CircularProgressIndicator()
+                        : Text(
+                            "Se connecter",
+                            style: GoogleFonts.shareTechMono(
+                              textStyle: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                   ),
                 )
               ],

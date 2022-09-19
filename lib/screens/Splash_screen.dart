@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
+import 'package:github_profile/providers/DataProvider.dart';
 import 'package:github_profile/screens/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -18,8 +21,20 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var isConnected;
+
+  void checkUserConnected() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    isConnected = prefs.getString('username');
+
+    print("hello :$isConnected");
+  }
+
   @override
   void initState() {
+    checkUserConnected();
+
     // TODO: implement initState
     super.initState();
 
@@ -28,7 +43,13 @@ class _SplashScreenState extends State<SplashScreen> {
         seconds: 4,
       ),
       () {
-        Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+        isConnected != null
+            ? Navigator.pushNamedAndRemoveUntil(
+                context, "/home", (route) => false)
+            : Navigator.pushNamedAndRemoveUntil(
+                context, "/login", (route) => false);
+
+        // Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
         // ;
       },
     );
@@ -45,6 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
           image: AssetImage(
             "assets/images/Background-grandient1.png",
           ),
+          fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(

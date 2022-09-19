@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_profile/providers/DataProvider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  var isLoading = false;
 
   FocusNode _focusUsername = FocusNode();
   FocusNode _focusPassword = FocusNode();
@@ -52,6 +55,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
     _focusPassword.removeListener(_onFocusPassChange);
     _focusPassword.dispose();
+  }
+
+  var error = null;
+
+  void _submit() async {
+    _focusUsername.unfocus();
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    _formKey.currentState?.save();
+
+    await Provider.of<DataProvider>(context, listen: false)
+        .getUserLog(_usernameController.text);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    error = Provider.of<DataProvider>(context, listen: false).error;
+
+    if (error == null) {
+      showDialog(message: "connecter", color: Colors.green);
+      Navigator.pushNamed(context, "/home");
+    }
+
+    if (error != null) {
+      showDialog(message: error.toString(), color: Colors.red);
+    }
   }
 
   @override
@@ -110,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () {
                             print("helloooo");
                             _usernameController.clear();
+                            _focusUsername.requestFocus();
                           },
                           child: Icon(
                             Icons.cancel_outlined,
@@ -219,11 +255,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       elevation: 0.0,
                     ),
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        Data_Provider.getUserLog(_usernameController.text);
-                      }
+                      _submit();
                     },
-                    child: Data_Provider.loadingLogin == true
+                    child: isLoading
                         ? CircularProgressIndicator()
                         : Text(
                             "Se connecter",
@@ -282,5 +316,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void showDialog({required String message, Color? color}) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: color,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }

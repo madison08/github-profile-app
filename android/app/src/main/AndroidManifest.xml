@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.github_profile">
+      <uses-permission android:name="android.permission.INTERNET"/> <!-- Add this -->
    <application
         android:label="github_profile"
         android:name="${applicationName}"

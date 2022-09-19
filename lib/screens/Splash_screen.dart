@@ -45,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
           image: AssetImage(
             "assets/images/Background-grandient1.png",
           ),
+          fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(

@@ -32,7 +32,7 @@ class DataProvider with ChangeNotifier {
 
           // throw HttpException(message: "l'utilisatuer n'existe pas");
 
-          error = HttpException(message: "l'utilisatuer n'existe pas");
+          error = HttpException(message: "L'utilisatuer n'existe pas");
           break;
         default:
           error = HttpException(message: data["message"]);

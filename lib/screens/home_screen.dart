@@ -5,6 +5,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_profile/ColorManager.dart';
+import 'package:github_profile/models/User.dart';
 import 'package:github_profile/providers/DataProvider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -292,51 +293,73 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               height: 10.0,
             ),
-            Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(right: 10.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 90.0,
-                          width: 90.0,
-                          // margin: EdgeInsets.only(right: 10.0),
-                          padding: EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(60.0),
-                          ),
-                          child: Image.asset("assets/images/jkplogo.png"),
-                        ),
-                        SizedBox(
-                          height: 6.0,
-                        ),
-                        Text(
-                          "jkp-dev",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
-            )
+            FutureBuilder<dynamic>(
+                future: Provider.of<DataProvider>(context, listen: false)
+                    .getSomeUsers(),
+                builder: (context, AsyncSnapshot snapshot) {
+                  print("future builder data: ${snapshot.data}");
 
-            // ElevatedButton(
-            //   style: ElevatedButton.styleFrom(
-            //     primary: Colors.red,
-            //   ),
-            //   onPressed: () {
-            //     _logout();
-            //   },
-            //   child: Text("Deconexion"),
-            // )
+                  List<User>? users = snapshot.data;
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasError) {
+                      return Text("Quelque chose s'est mal passer");
+                    } else if (snapshot.hasData) {
+                      return Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: users!.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.only(right: 10.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Container(
+                                  //   height: 90.0,
+                                  //   width: 90.0,
+                                  //   // margin: EdgeInsets.only(right: 10.0),
+                                  //   padding: EdgeInsets.all(10.0),
+                                  //   decoration: BoxDecoration(
+                                  //     color: Colors.white,
+                                  //     borderRadius: BorderRadius.circular(60.0),
+                                  //     // image: DecorationImage(image: Image.network(""))
+                                  //   ),
+
+                                  //   child: Image.network(
+                                  //     users[index].avatarUrl.toString(),
+                                  //     fit: BoxFit.cover,
+                                  //   ),
+                                  // ),
+                                  CircleAvatar(
+                                    radius: 35.0,
+                                    backgroundImage: NetworkImage(
+                                        users[index].avatarUrl.toString()),
+                                  ),
+                                  SizedBox(
+                                    height: 6.0,
+                                  ),
+                                  Text(
+                                    users[index].login.toString(),
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      return Text("Pas d'utilisateur");
+                    }
+                  } else {
+                    return Text("Une erreur s'est produite");
+                  }
+                }),
           ],
         ),
       ),

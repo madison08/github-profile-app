@@ -15,8 +15,14 @@ class DataProvider with ChangeNotifier {
 
   String? userConnected;
 
+  List<User>? _users;
+
   bool get isAuth {
     return userConnected != null;
+  }
+
+  List<User>? get users {
+    return _users;
   }
 
   Future<void> getUserLog(username) async {
@@ -81,5 +87,48 @@ class DataProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     prefs.clear();
+  }
+
+  Future<dynamic> getSomeUsers() async {
+    error = null;
+    try {
+      var response = await http.get(Uri.parse("$BASE_URL/users"));
+
+      var data = jsonDecode(response.body);
+
+      print("users datas :");
+      print(data);
+
+      switch (response.statusCode) {
+        case 200:
+          List<User> loadedData = [];
+
+          for (var user in data) {
+            loadedData.add(User.fromJson(user));
+          }
+
+          _users = loadedData;
+
+          break;
+        case 404:
+          print("ENTER IN REQUEST");
+
+          error = HttpException(message: "erreur");
+          break;
+        default:
+          error = HttpException(message: data["message"]);
+      }
+    } on SocketException {
+      error = "Vous n'avez pas internet";
+    } catch (err) {
+      print(err);
+      error = err.toString();
+    }
+
+    loadingLogin = false;
+
+    notifyListeners();
+
+    return users;
   }
 }

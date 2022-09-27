@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:github_profile/ColorManager.dart';
 import 'package:github_profile/providers/DataProvider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -277,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
               width: _deviceWidth * 0.8,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF504646),
+                  primary: ColorManager.sombreGrey,
                   // primary: Colors.white.withOpacity(0.1),
                   shape: StadiumBorder(),
                   padding: EdgeInsets.all(10.0),

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:github_profile/api_const.dart';
+import 'package:github_profile/models/Repositorie.dart';
 import 'package:github_profile/models/User.dart';
 import 'package:github_profile/models/http_exception.dart';
 import 'package:http/http.dart' as http;
@@ -17,12 +18,24 @@ class DataProvider with ChangeNotifier {
 
   List<User>? _users;
 
+  List<Repositorie>? _repos;
+
+  String? _username;
+
+  String? get getUserLogName {
+    return _username;
+  }
+
   bool get isAuth {
     return userConnected != null;
   }
 
   List<User>? get users {
     return _users;
+  }
+
+  List<Repositorie>? get repositories {
+    return _repos;
   }
 
   Future<void> getUserLog(username) async {
@@ -44,6 +57,8 @@ class DataProvider with ChangeNotifier {
 
           prefs.setString("username", username);
           userConnected = username;
+
+          _username = username;
 
           break;
         case 404:
@@ -96,8 +111,8 @@ class DataProvider with ChangeNotifier {
 
       var data = jsonDecode(response.body);
 
-      print("users datas :");
-      print(data);
+      // print("users datas :");
+      // print(data);
 
       switch (response.statusCode) {
         case 200:
@@ -121,7 +136,7 @@ class DataProvider with ChangeNotifier {
     } on SocketException {
       error = "Vous n'avez pas internet";
     } catch (err) {
-      print(err);
+      // print(err);
       error = err.toString();
     }
 
@@ -130,5 +145,53 @@ class DataProvider with ChangeNotifier {
     notifyListeners();
 
     return users;
+  }
+
+  Future<dynamic> getAllrepos(username) async {
+    error = null;
+    try {
+      var response =
+          await http.get(Uri.parse("$BASE_URL/users/$username/repos"));
+
+      // dynamic data = jsonEncode(response.body);
+
+      var data = jsonDecode(response.body);
+
+      print("users datas :");
+      // print(data);
+
+      switch (response.statusCode) {
+        case 200:
+          List<Repositorie> loadedData = [];
+
+          for (var repo in data) {
+            // print(repo);
+            loadedData.add(Repositorie.fromJson(repo));
+          }
+          // print("OUR DATA: $loadedData");
+
+          _repos = loadedData;
+
+          break;
+        case 404:
+          print("ENTER IN REQUEST");
+
+          error = HttpException(message: "erreur");
+          break;
+        default:
+          error = HttpException(message: data["message"]);
+      }
+    } on SocketException {
+      error = "Vous n'avez pas internet";
+    } catch (err) {
+      print(err);
+      error = err.toString();
+    }
+
+    loadingLogin = false;
+
+    notifyListeners();
+
+    return repositories;
   }
 }

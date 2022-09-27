@@ -5,10 +5,13 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:github_profile/ColorManager.dart';
+import 'package:github_profile/models/Repositorie.dart';
 import 'package:github_profile/models/User.dart';
 import 'package:github_profile/providers/DataProvider.dart';
+import 'package:github_profile/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,9 +23,34 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool logoutLoder = false;
 
+  var username;
+
+  void getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    username = prefs.getString("username");
+
+    // print("USERNAME: $username");
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+
+    getUsername();
+    // print("USERNAME: $username");
+  }
+
   @override
   Widget build(BuildContext context) {
     var _deviceWidth = MediaQuery.of(context).size.width;
+
+    print(
+        "USER LOG ${Provider.of<DataProvider>(context, listen: false).getUserLogName}");
+
+    var userlogname =
+        Provider.of<DataProvider>(context, listen: false).getUserLogName;
 
     return Container(
       decoration: BoxDecoration(
@@ -180,82 +208,103 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Expanded(
-              child: ListView.separated(
-                separatorBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15.0),
-                    child: Divider(
-                      color: ColorManager.sombreGrey,
-                    ),
-                  );
-                },
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Row(
-                      children: [
-                        Text(
-                          "Todo-list",
-                          style: GoogleFonts.shareTechMono(
-                            color: Colors.white,
-                          ),
+            FutureBuilder<dynamic>(
+                future: Provider.of<DataProvider>(context, listen: false)
+                    .getAllrepos(username),
+                builder: (context, AsyncSnapshot snapshot) {
+                  // print("future builder data: ${snapshot.data}");
+                  // print("USERNAME IN FUTUREBUILD: $username");
+
+                  List<Repositorie>? repo = snapshot.data;
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasError) {
+                      return Text("Quelque chose s'est mal passer");
+                    } else if (snapshot.hasData) {
+                      return Expanded(
+                        child: ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Divider(
+                                color: ColorManager.sombreGrey,
+                              ),
+                            );
+                          },
+                          itemCount: repo!.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        repo[index].name.toString(),
+                                        style: GoogleFonts.shareTechMono(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 7.0,
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 7.0,
+                                          vertical: 4.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: Text(
+                                          Utils.checkRepoPrivate(
+                                              repo[index].private),
+                                          style: GoogleFonts.share(
+                                            color: Colors.black,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        repo[index].language.toString(),
+                                        style: GoogleFonts.shareTechMono(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        repo[index].updatedAt.toString(),
+                                        style: GoogleFonts.shareTechMono(
+                                          color: ColorManager.sombreGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        SizedBox(
-                          width: 7.0,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 7.0,
-                            vertical: 4.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Text(
-                            "Public",
-                            style: GoogleFonts.share(
-                              color: Colors.black,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: 3.0,
-                        ),
-                        Text(
-                          "Dart",
-                          style: GoogleFonts.shareTechMono(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Modifié le 13 Oct 2022",
-                          style: GoogleFonts.shareTechMono(
-                            color: ColorManager.sombreGrey,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 7,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
+                      );
+                    } else {
+                      return Text("Pas de repositorie");
+                    }
+                  } else {
+                    return Text("Quelque chose s'est mal passer");
+                  }
+                }),
             SizedBox(
               height: 10.0,
             ),
@@ -297,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 future: Provider.of<DataProvider>(context, listen: false)
                     .getSomeUsers(),
                 builder: (context, AsyncSnapshot snapshot) {
-                  print("future builder data: ${snapshot.data}");
+                  // print("future builder data: ${snapshot.data}");
 
                   List<User>? users = snapshot.data;
 
@@ -317,22 +366,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  // Container(
-                                  //   height: 90.0,
-                                  //   width: 90.0,
-                                  //   // margin: EdgeInsets.only(right: 10.0),
-                                  //   padding: EdgeInsets.all(10.0),
-                                  //   decoration: BoxDecoration(
-                                  //     color: Colors.white,
-                                  //     borderRadius: BorderRadius.circular(60.0),
-                                  //     // image: DecorationImage(image: Image.network(""))
-                                  //   ),
-
-                                  //   child: Image.network(
-                                  //     users[index].avatarUrl.toString(),
-                                  //     fit: BoxFit.cover,
-                                  //   ),
-                                  // ),
                                   CircleAvatar(
                                     radius: 35.0,
                                     backgroundImage: NetworkImage(

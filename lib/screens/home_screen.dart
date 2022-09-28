@@ -288,7 +288,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Text(
-                                        repo[index].updatedAt.toString(),
+                                        Utils.dateFormatter(
+                                            repo[index].updatedAt.toString()),
                                         style: GoogleFonts.shareTechMono(
                                           color: ColorManager.sombreGrey,
                                         ),

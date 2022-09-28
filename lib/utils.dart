@@ -16,4 +16,11 @@ class Utils {
 
     return "inconnu";
   }
+
+  static dateFormatter(date) {
+    final dateFormat =
+        DateFormat("dd-MM-yyyy HH:mm:ss").format(DateTime.parse(date));
+
+    return dateFormat;
+  }
 }

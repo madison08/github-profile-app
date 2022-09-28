@@ -147,9 +147,13 @@ class DataProvider with ChangeNotifier {
     return users;
   }
 
-  Future<dynamic> getAllrepos(username) async {
+  Future<dynamic> getAllrepos() async {
     error = null;
     try {
+      final prefs = await SharedPreferences.getInstance();
+
+      var username = prefs.getString("username");
+
       var response =
           await http.get(Uri.parse("$BASE_URL/users/$username/repos"));
 

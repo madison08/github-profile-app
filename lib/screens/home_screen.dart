@@ -52,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
     var userlogname =
         Provider.of<DataProvider>(context, listen: false).getUserLogName;
 
+    getUsername();
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -210,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             FutureBuilder<dynamic>(
                 future: Provider.of<DataProvider>(context, listen: false)
-                    .getAllrepos(username),
+                    .getAllrepos(),
                 builder: (context, AsyncSnapshot snapshot) {
                   // print("future builder data: ${snapshot.data}");
                   // print("USERNAME IN FUTUREBUILD: $username");
@@ -233,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          itemCount: repo!.length,
+                          itemCount: 2,
                           itemBuilder: (context, index) {
                             return Container(
                               margin: EdgeInsets.symmetric(horizontal: 15.0),
@@ -242,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Row(
                                     children: <Widget>[
                                       Text(
-                                        repo[index].name.toString(),
+                                        repo![index].name.toString(),
                                         style: GoogleFonts.shareTechMono(
                                           color: Colors.white,
                                         ),
@@ -279,7 +281,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
                                       Text(
-                                        repo[index].language.toString(),
+                                        Utils.checkRepoLanguage(
+                                            repo[index].language),
                                         style: GoogleFonts.shareTechMono(
                                           color: Colors.white,
                                         ),

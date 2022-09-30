@@ -27,36 +27,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool reposLoader = false;
   bool profileLoader = false;
 
-  var username;
-
-  void getUsername() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    username = prefs.getString("username");
-
-    // print("USERNAME: $username");
-  }
-
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-
-    getUsername();
-    // print("USERNAME: $username");
   }
 
   @override
   Widget build(BuildContext context) {
     var _deviceWidth = MediaQuery.of(context).size.width;
-
-    print(
-        "USER LOG ${Provider.of<DataProvider>(context, listen: false).getUserLogName}");
-
-    var userlogname =
-        Provider.of<DataProvider>(context, listen: false).getUserLogName;
-
-    getUsername();
 
     return Container(
       decoration: BoxDecoration(
@@ -68,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -77,10 +57,15 @@ class _HomeScreenState extends State<HomeScreen> {
             size: 32.0,
           ),
           actions: [
-            Icon(
-              Icons.account_circle,
-              color: ColorManager.sombreGrey,
-              size: 32.0,
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, "/profile");
+              },
+              child: Icon(
+                Icons.account_circle,
+                color: ColorManager.sombreGrey,
+                size: 32.0,
+              ),
             ),
             SizedBox(
               width: 15.0,
@@ -126,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.all(10.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                   filled: true,
                   suffix: GestureDetector(
                     onTap: () {
@@ -139,21 +125,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  label: Row(
-                    children: [
-                      Icon(
-                        Icons.search,
-                        color: ColorManager.sombreGrey,
-                        size: 32.0,
-                      ),
-                      Text(
-                        "Rechercher...",
-                        style: TextStyle(
-                          color: ColorManager.sombreGrey,
-                        ),
-                      )
-                    ],
+                  hintText: "Rechercher...",
+                  hintStyle: TextStyle(
+                    color: ColorManager.sombreGrey,
+                    fontSize: 19.0,
                   ),
+                  // label: Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.search,
+                  //       color: ColorManager.sombreGrey,
+                  //       size: 32.0,
+                  //     ),
+                  //     Text(
+                  //       "Rechercher...",
+                  //       style: TextStyle(
+                  //         color: ColorManager.sombreGrey,
+                  //       ),
+                  //     )
+                  //   ],
+                  // ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.0),
                     borderSide: BorderSide(
@@ -490,6 +481,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   CircleAvatar(
+                                    backgroundColor:
+                                        Colors.grey.withOpacity(0.2),
                                     radius: 35.0,
                                     backgroundImage: NetworkImage(
                                         users[index].avatarUrl.toString()),
@@ -520,27 +513,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  void _logout() async {
-    setState(() {
-      logoutLoder = true;
-    });
-    await Provider.of<DataProvider>(context, listen: false).logout();
-
-    setState(() {
-      logoutLoder = false;
-    });
-
-    Fluttertoast.showToast(
-        msg: "Deconnecter",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-
-    Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
   }
 }

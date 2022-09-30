@@ -12,6 +12,7 @@ import 'package:github_profile/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -23,36 +24,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool logoutLoder = false;
 
-  var username;
-
-  void getUsername() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    username = prefs.getString("username");
-
-    // print("USERNAME: $username");
-  }
+  bool reposLoader = false;
+  bool profileLoader = false;
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-
-    getUsername();
-    // print("USERNAME: $username");
   }
 
   @override
   Widget build(BuildContext context) {
     var _deviceWidth = MediaQuery.of(context).size.width;
-
-    print(
-        "USER LOG ${Provider.of<DataProvider>(context, listen: false).getUserLogName}");
-
-    var userlogname =
-        Provider.of<DataProvider>(context, listen: false).getUserLogName;
-
-    getUsername();
 
     return Container(
       decoration: BoxDecoration(
@@ -64,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -73,10 +57,15 @@ class _HomeScreenState extends State<HomeScreen> {
             size: 32.0,
           ),
           actions: [
-            Icon(
-              Icons.account_circle,
-              color: ColorManager.sombreGrey,
-              size: 32.0,
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, "/profile");
+              },
+              child: Icon(
+                Icons.account_circle,
+                color: ColorManager.sombreGrey,
+                size: 32.0,
+              ),
             ),
             SizedBox(
               width: 15.0,
@@ -122,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.all(10.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
                   filled: true,
                   suffix: GestureDetector(
                     onTap: () {
@@ -135,21 +125,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  label: Row(
-                    children: [
-                      Icon(
-                        Icons.search,
-                        color: ColorManager.sombreGrey,
-                        size: 32.0,
-                      ),
-                      Text(
-                        "Rechercher...",
-                        style: TextStyle(
-                          color: ColorManager.sombreGrey,
-                        ),
-                      )
-                    ],
+                  hintText: "Rechercher...",
+                  hintStyle: TextStyle(
+                    color: ColorManager.sombreGrey,
+                    fontSize: 19.0,
                   ),
+                  // label: Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.search,
+                  //       color: ColorManager.sombreGrey,
+                  //       size: 32.0,
+                  //     ),
+                  //     Text(
+                  //       "Rechercher...",
+                  //       style: TextStyle(
+                  //         color: ColorManager.sombreGrey,
+                  //       ),
+                  //     )
+                  //   ],
+                  // ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5.0),
                     borderSide: BorderSide(
@@ -220,7 +215,88 @@ class _HomeScreenState extends State<HomeScreen> {
                   List<Repositorie>? repo = snapshot.data;
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Expanded(
+                      child: ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey,
+                              highlightColor: Colors.black,
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 15.0),
+                                child: Divider(
+                                  color: ColorManager.sombreGrey,
+                                ),
+                              ),
+                            );
+                          },
+                          itemCount: 2,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 100.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                      SizedBox(
+                                        width: 7.0,
+                                      ),
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          height: 10.0,
+                                          width: 30.0,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 15.0,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 20.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 50.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                    );
                   } else if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasError) {
                       return Text("Quelque chose s'est mal passer");
@@ -288,7 +364,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Text(
-                                        repo[index].updatedAt.toString(),
+                                        Utils.dateFormatter(
+                                            repo[index].updatedAt.toString()),
                                         style: GoogleFonts.shareTechMono(
                                           color: ColorManager.sombreGrey,
                                         ),
@@ -354,7 +431,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   List<User>? users = snapshot.data;
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Expanded(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 10,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey,
+                                  highlightColor: Colors.black,
+                                  child: CircleAvatar(
+                                    radius: 35.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 6.0,
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey,
+                                  highlightColor: Colors.black,
+                                  child: Container(
+                                    color: Colors.black,
+                                    height: 10.0,
+                                    width: 50.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    );
                   } else if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasError) {
                       return Text("Quelque chose s'est mal passer");
@@ -370,6 +481,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   CircleAvatar(
+                                    backgroundColor:
+                                        Colors.grey.withOpacity(0.2),
                                     radius: 35.0,
                                     backgroundImage: NetworkImage(
                                         users[index].avatarUrl.toString()),
@@ -400,27 +513,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  void _logout() async {
-    setState(() {
-      logoutLoder = true;
-    });
-    await Provider.of<DataProvider>(context, listen: false).logout();
-
-    setState(() {
-      logoutLoder = false;
-    });
-
-    Fluttertoast.showToast(
-        msg: "Deconnecter",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-
-    Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
   }
 }

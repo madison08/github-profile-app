@@ -12,6 +12,7 @@ import 'package:github_profile/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,6 +23,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool logoutLoder = false;
+
+  bool reposLoader = false;
+  bool profileLoader = false;
 
   var username;
 
@@ -220,7 +224,88 @@ class _HomeScreenState extends State<HomeScreen> {
                   List<Repositorie>? repo = snapshot.data;
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Expanded(
+                      child: ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey,
+                              highlightColor: Colors.black,
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 15.0),
+                                child: Divider(
+                                  color: ColorManager.sombreGrey,
+                                ),
+                              ),
+                            );
+                          },
+                          itemCount: 2,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 100.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                      SizedBox(
+                                        width: 7.0,
+                                      ),
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          height: 10.0,
+                                          width: 30.0,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 15.0,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 20.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                      Shimmer.fromColors(
+                                        child: Container(
+                                          color: Colors.black,
+                                          height: 10.0,
+                                          width: 50.0,
+                                        ),
+                                        baseColor: Colors.grey,
+                                        highlightColor: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                    );
                   } else if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasError) {
                       return Text("Quelque chose s'est mal passer");
@@ -355,7 +440,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   List<User>? users = snapshot.data;
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Expanded(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 10,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey,
+                                  highlightColor: Colors.black,
+                                  child: CircleAvatar(
+                                    radius: 35.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 6.0,
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey,
+                                  highlightColor: Colors.black,
+                                  child: Container(
+                                    color: Colors.black,
+                                    height: 10.0,
+                                    width: 50.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    );
                   } else if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasError) {
                       return Text("Quelque chose s'est mal passer");
